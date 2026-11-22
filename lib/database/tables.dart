@@ -7,6 +7,7 @@ class SauceItems extends Table with AutoIncrementingPrimaryKey {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+@TableIndex(name: 'idx_tags_name', columns: {#name}, unique: true)
 class Tags extends Table with AutoIncrementingPrimaryKey {
   TextColumn get name => text().unique()();
 
@@ -19,6 +20,8 @@ class Tags extends Table with AutoIncrementingPrimaryKey {
   }
 }
 
+@TableIndex(name: 'idx_sauce_tags_sauce_id', columns: {#sauceId})
+@TableIndex(name: 'idx_sauce_tags_tag_id', columns: {#tagId})
 class SauceTags extends Table {
   IntColumn get sauceId => integer().references(SauceItems, #id)();
   IntColumn get tagId => integer().references(Tags, #id)();

@@ -194,7 +194,7 @@ class AppDatabase extends _$AppDatabase {
     final filter = ParsedSearchQuery.parse(rawQuery);
 
     // Start with a base select statement on the sauceItems table
-    final query = select(sauceItems);
+    final query = select(sauceItems); // select * from sauceItems
 
     //  Filter by title if specified
     if (filter.titleQuery != null && filter.titleQuery!.isNotEmpty) {
@@ -206,36 +206,46 @@ class AppDatabase extends _$AppDatabase {
       query.where((s) => s.description.like('%${filter.descQuery}%'));
     }
 
-    //  Include Tags: Sauce MUST have this tag
+    //  Include Tags: Sauce MUST have them all
     for (final tagName in filter.includeTags) {
-      final hasTag =
-          selectOnly(sauceTags).join([
-              innerJoin(tags, tags.id.equalsExp(sauceTags.tagId)),
-            ])
-            ..addColumns([sauceTags.sauceId])
-            ..where(
-              sauceTags.sauceId.equalsExp(sauceItems.id) &
-                  tags.name.equals(tagName),
-            );
+      query.where((s) {
+        // inner query whose output contains exactly one row (= s.id) if s is associated with tagName
+        final matchingTag =
+            selectOnly(sauceTags) // 2. from sauceTags st
+                .join([
+                  innerJoin(tags, tags.id.equalsExp(sauceTags.tagId)),
+                ]) // 3. inner join tags t on t.id = st.tagId
+              ..addColumns([sauceTags.sauceId]) // 1. select st.sauceId
+              ..where(
+                sauceTags.sauceId.equalsExp(s.id) &
+                    tags.name.equals(
+                      tagName,
+                    ), // 4. where st.sauceId = s.id and t.name = tagName
+              );
 
-      query.where((t) => existsQuery(hasTag));
+        return existsQuery(
+          matchingTag,
+        ); // where exists (output from matchingTag)
+      });
     }
 
-    // Exclude Tags: Sauce MUST NOT have any of these tags
+    // Exclude Tags: Sauce MUST NOT have any of these
     if (filter.excludeTags.isNotEmpty) {
-      final hasExcludedTag =
-          selectOnly(sauceTags).join([
-              innerJoin(tags, tags.id.equalsExp(sauceTags.tagId)),
-            ])
-            ..addColumns([sauceTags.sauceId])
-            ..where(
-              sauceTags.sauceId.equalsExp(sauceItems.id) &
-                  tags.name.isIn(filter.excludeTags),
-            );
-
-      query.where((t) => notExistsQuery(hasExcludedTag));
+      query.where((s) {
+        // inner query whose output is not empty & contains n rows
+        // if s is associated with n tags in excludeTags. all rows are = s.id
+        // Using selectOnly(..., distinct: true) uses 'select distinct' and returns only one row = s.id
+        final matchingTag =
+            selectOnly(sauceTags)
+                .join([innerJoin(tags, tags.id.equalsExp(sauceTags.tagId))])
+              ..addColumns([sauceTags.sauceId])
+              ..where(
+                sauceTags.sauceId.equalsExp(s.id) &
+                    tags.name.isIn(filter.excludeTags),
+              );
+        return notExistsQuery(matchingTag);
+      });
     }
-
     return query;
   }
 

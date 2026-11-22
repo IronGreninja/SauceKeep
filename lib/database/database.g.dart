@@ -712,6 +712,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SauceItemsTable sauceItems = $SauceItemsTable(this);
   late final $TagsTable tags = $TagsTable(this);
   late final $SauceTagsTable sauceTags = $SauceTagsTable(this);
+  late final Index idxTagsName = Index(
+    'idx_tags_name',
+    'CREATE UNIQUE INDEX idx_tags_name ON tags (name)',
+  );
+  late final Index idxSauceTagsSauceId = Index(
+    'idx_sauce_tags_sauce_id',
+    'CREATE INDEX idx_sauce_tags_sauce_id ON sauce_tags (sauce_id)',
+  );
+  late final Index idxSauceTagsTagId = Index(
+    'idx_sauce_tags_tag_id',
+    'CREATE INDEX idx_sauce_tags_tag_id ON sauce_tags (tag_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -720,6 +732,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     sauceItems,
     tags,
     sauceTags,
+    idxTagsName,
+    idxSauceTagsSauceId,
+    idxSauceTagsTagId,
   ];
 }
 
