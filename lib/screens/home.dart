@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'home/add_dialog.dart';
 import 'home/card.dart';
-import '../state.dart';
+import '../providers/sauce.dart';
+import '../providers/search_query.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});

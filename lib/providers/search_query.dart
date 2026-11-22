@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'database/database.dart';
-
 final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
   SearchQueryNotifier.new,
 );
@@ -28,15 +26,3 @@ class SearchQueryNotifier extends Notifier<String> {
     });
   }
 }
-
-final allSauceProvider = StreamProvider((ref) {
-  final database = ref.watch(AppDatabase.provider);
-  return database.allSauce();
-});
-
-final filteredSauceItemsProvider = StreamProvider.autoDispose((ref) {
-  final queryText = ref.watch(searchQueryProvider);
-  final database = ref.watch(AppDatabase.provider);
-
-  return database.watchFilteredSauceItems(queryText);
-});

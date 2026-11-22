@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home.dart';
 import 'screens/settings.dart';
 import 'providers/shared_preferences.dart';
-import 'providers/theme_provider.dart';
+import 'providers/theme.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
