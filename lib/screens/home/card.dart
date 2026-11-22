@@ -31,10 +31,13 @@ class SauceCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(sauce.title),
+                    Text(
+                      sauce.title,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     Text(
                       formatDate(sauce.createdAt),
-                      style: const TextStyle(fontSize: 12),
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ],
                 ),

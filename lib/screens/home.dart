@@ -31,14 +31,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                 // Updates query state instantly as the user types
                 ref.read(searchQueryProvider.notifier).updateQuery(value);
               },
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Search (e.g. tag:a -tag:b title:"abc")...',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Theme.of(context).colorScheme.surface,
               ),
             ),
           ),

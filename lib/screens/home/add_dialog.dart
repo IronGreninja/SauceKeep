@@ -79,7 +79,7 @@ class _SauceAddDialogState extends ConsumerState<SauceAddDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: Colors.black)),
+          child: const Text('Cancel'),
         ),
         TextButton(
           child: const Text('Save'),
