@@ -5,7 +5,7 @@ import '../../database/database.dart';
 import '../../database/tables.dart';
 
 class SauceDetailsPage extends ConsumerStatefulWidget {
-  final Sauce sauce;
+  final SauceWithTags sauce;
 
   const SauceDetailsPage({super.key, required this.sauce});
 
@@ -25,29 +25,17 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
   late String _currentTagsStr;
 
   List<String> _currentTagNames = [];
-  bool _isLoadingTags = true;
 
   @override
   void initState() {
     super.initState();
-    _currentTitle = widget.sauce.title;
+    _currentTitle = widget.sauce.sauce.title;
     _titleController = .new(text: _currentTitle);
-    _currentDesc = widget.sauce.description ?? '';
+    _currentDesc = widget.sauce.sauce.description ?? '';
     _descController = .new(text: _currentDesc);
-    _loadTags();
-  }
-
-  Future<void> _loadTags() async {
-    final database = ref.read(AppDatabase.provider);
-
-    final fetchedTags = await database.getSauceTags(widget.sauce.id);
-
-    setState(() {
-      _currentTagsStr = fetchedTags.join(', ');
-      _currentTagNames = fetchedTags;
-      _tagsController = .new(text: _currentTagsStr);
-      _isLoadingTags = false;
-    });
+    _currentTagNames = widget.sauce.tags;
+    _currentTagsStr = _currentTagNames.join(', ');
+    _tagsController = .new(text: _currentTagsStr);
   }
 
   Future<void> _saveChanges() async {
@@ -67,7 +55,7 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
 
     final database = ref.read(AppDatabase.provider);
     await database.updateSauceWithTags(
-      sauceId: widget.sauce.id,
+      sauceId: widget.sauce.sauce.id,
       title: title,
       desc: desc.isEmpty ? null : desc,
       tagNames: tagNames,
@@ -104,7 +92,10 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
             onPressed: () => Navigator.pop(context, false),
           ),
           TextButton(
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
             onPressed: () => Navigator.pop(context, true),
           ),
         ],
@@ -113,7 +104,7 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
 
     if (confirm == true) {
       final database = ref.read(AppDatabase.provider);
-      await database.deleteSauceWithCleanup(widget.sauce.id);
+      await database.deleteSauceWithCleanup(widget.sauce.sauce.id);
 
       if (mounted) {
         Navigator.pop(context);
@@ -130,7 +121,7 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
               onPressed: () async {
                 // Re-insert the sauce and its tags if user clicks Undo
                 await database.createSauceWithTags(
-                  id: widget.sauce.id,
+                  id: widget.sauce.sauce.id,
                   title: _currentTitle,
                   desc: _currentDesc.isEmpty ? null : _currentDesc,
                   tagNames: _currentTagNames,
@@ -190,54 +181,66 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _isLoadingTags
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                children: [
-                  TextField(
-                    controller: _titleController,
-                    enabled: _isEditing,
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _descController,
-                    enabled: _isEditing,
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (_isEditing)
-                    TextField(
-                      controller: _tagsController,
-                      enabled: _isEditing,
-                      decoration: const InputDecoration(
-                        labelText: 'Tags (comma-separated)',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  if (!_isEditing) ...[
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Associated Tags:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8.0,
-                      children: _currentTagNames
-                          .map((tag) => Chip(label: Text(tag)))
-                          .toList(),
-                    ),
-                  ],
-                ],
+        child: ListView(
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 7),
+                Text(
+                  'Created ${MaterialLocalizations.of(context).formatMediumDate(widget.sauce.sauce.createdAt)}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _titleController,
+              enabled: _isEditing,
+              decoration: const InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(),
               ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _descController,
+              enabled: _isEditing,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_isEditing)
+              TextField(
+                controller: _tagsController,
+                enabled: _isEditing,
+                decoration: const InputDecoration(
+                  labelText: 'Tags (comma-separated)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            if (!_isEditing) ...[
+              const Text(
+                'Associated Tags:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8.0,
+                children: _currentTagNames
+                    .map((tag) => Chip(label: Text(tag)))
+                    .toList(),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

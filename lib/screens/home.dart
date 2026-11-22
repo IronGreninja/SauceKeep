@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'home/add_dialog.dart';
-import 'home/card.dart';
+import 'home/sauce_card.dart';
 import '../providers/sauce.dart';
 import '../providers/search_query.dart';
 
@@ -67,7 +67,7 @@ class HomePage extends ConsumerWidget {
           return ListView.builder(
             itemCount: sauceItems.length,
             itemBuilder: (context, index) =>
-                SauceCard(sauce: sauceItems[index]),
+                SauceItemCard(sauce: sauceItems[index]),
           );
         },
         error: (e, s) {
