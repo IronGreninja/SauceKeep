@@ -7,18 +7,14 @@ import 'home/card.dart';
 import '../providers/sauce.dart';
 import '../providers/search_query.dart';
 
-class HomePage extends ConsumerStatefulWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  createState() => _HomePageState();
-}
-
-class _HomePageState extends ConsumerState<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    // final currentSauceItems = ref.watch(allSauceProvider);
-    final filteredSauceItems = ref.watch(filteredSauceItemsProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filteredSauceItemsWithTags = ref.watch(
+      filteredSauceItemsWithTagsProvider,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +62,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         tooltip: 'New',
         child: const Icon(Icons.add),
       ),
-      body: filteredSauceItems.when(
+      body: filteredSauceItemsWithTags.when(
         data: (sauceItems) {
           return ListView.builder(
             itemCount: sauceItems.length,

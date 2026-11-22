@@ -184,6 +184,13 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Stream<List<Sauce>> watchFilteredSauceItems(String rawQuery) {
+    final query = _filterSauceItems(rawQuery);
+    return query.watch();
+  }
+
+  SimpleSelectStatement<$SauceItemsTable, Sauce> _filterSauceItems(
+    String rawQuery,
+  ) {
     final filter = ParsedSearchQuery.parse(rawQuery);
 
     // Start with a base select statement on the sauceItems table
@@ -229,6 +236,39 @@ class AppDatabase extends _$AppDatabase {
       query.where((t) => notExistsQuery(hasExcludedTag));
     }
 
-    return query.watch();
+    return query;
   }
+
+  Stream<List<SauceWithTags>> watchFilteredSauceItemsWithTags(String rawQuery) {
+    final query = _filterSauceItems(rawQuery);
+    return query
+        .join([
+          leftOuterJoin(sauceTags, sauceTags.sauceId.equalsExp(sauceItems.id)),
+          leftOuterJoin(tags, tags.id.equalsExp(sauceTags.tagId)),
+        ])
+        .watch()
+        .map((rows) {
+          final Map<int, SauceWithTags> result = {};
+          for (final row in rows) {
+            final sauce = row.readTable(sauceItems);
+            final tag = row.readTable(tags);
+            result.putIfAbsent(
+              sauce.id,
+              () => SauceWithTags(sauce: sauce, tags: []),
+            );
+            result[sauce.id]!.tags.add(tag.name);
+          }
+          return result.values.toList();
+        });
+  }
+}
+
+class SauceWithTags {
+  final Sauce sauce;
+  final List<String> tags;
+
+  SauceWithTags({
+    required this.sauce,
+    required this.tags,
+  });
 }
