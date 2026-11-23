@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../search/query_parser.dart';
+import 'shared_preferences.dart';
+
 final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
   SearchQueryNotifier.new,
 );
@@ -26,3 +29,31 @@ class SearchQueryNotifier extends Notifier<String> {
     });
   }
 }
+
+final querySyntaxTypeProvider =
+    NotifierProvider<QuerySyntaxTypeNotifier, QuerySyntaxType>(
+      QuerySyntaxTypeNotifier.new,
+    );
+
+class QuerySyntaxTypeNotifier extends Notifier<QuerySyntaxType> {
+  static const String _syntaxTypePrefKey = 'selected_query_syntax_type';
+
+  @override
+  QuerySyntaxType build() {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final savedKey = prefs.getString(_syntaxTypePrefKey);
+    return QuerySyntaxType.fromKey(savedKey);
+  }
+
+  Future<void> setQuerySyntax(QuerySyntaxType type) async {
+    if (state == type) return;
+    state = type;
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setString(_syntaxTypePrefKey, type.key);
+  }
+}
+
+final queryParserProvider = Provider((ref) {
+  final selectedType = ref.watch(querySyntaxTypeProvider);
+  return createQueryParser(selectedType);
+});

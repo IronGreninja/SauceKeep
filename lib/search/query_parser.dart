@@ -1,10 +1,29 @@
 import 'filter.dart';
 
+enum QuerySyntaxType {
+  simple('simple'),
+  advanced('advanced');
+
+  const QuerySyntaxType(this.key);
+  final String key;
+
+  static QuerySyntaxType fromKey(String? key) {
+    return QuerySyntaxType.values.firstWhere(
+      (type) => type.key == key,
+      orElse: () => QuerySyntaxType.simple,
+    );
+  }
+}
+
 abstract class QueryParser {
+  String get syntaxType;
   SauceFilter parse(String query);
 }
 
 class SimpleQueryParser implements QueryParser {
+  @override
+  String get syntaxType => 'Simple';
+
   @override
   SauceFilter parse(String query) {
     var (include, exclude) = _parseTags(query);
@@ -61,5 +80,24 @@ class SimpleQueryParser implements QueryParser {
     }
 
     return (includeTags, excludeTags);
+  }
+}
+
+class AdvancedQueryParser implements QueryParser {
+  @override
+  String get syntaxType => 'Advanced';
+
+  @override
+  SauceFilter parse(String query) {
+    throw UnimplementedError();
+  }
+}
+
+QueryParser createQueryParser(QuerySyntaxType type) {
+  switch (type) {
+    case QuerySyntaxType.simple:
+      return SimpleQueryParser();
+    case QuerySyntaxType.advanced:
+      return AdvancedQueryParser();
   }
 }

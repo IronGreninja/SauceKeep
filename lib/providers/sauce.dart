@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'search_query.dart';
 import 'sauce_filter.dart';
 import '../database/database.dart';
 

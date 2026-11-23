@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError(
-    'SharedPreferences has not been initialized',
+    'sharedPreferencesProvider has not been initialized. '
+    'It must be overridden in main() with a SharedPreferences instance.',
   );
 });
