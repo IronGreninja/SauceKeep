@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../search/query_parser.dart';
+import '../search/filter.dart';
 
 import 'tables.dart';
 
@@ -183,27 +184,25 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
-  Stream<List<Sauce>> watchFilteredSauceItems(String rawQuery) {
-    final query = _filterSauceItems(rawQuery);
+  Stream<List<Sauce>> watchFilteredSauceItems(SauceFilter filter) {
+    final query = _filterSauceItems(filter);
     return query.watch();
   }
 
   SimpleSelectStatement<$SauceItemsTable, Sauce> _filterSauceItems(
-    String rawQuery,
+    SauceFilter filter,
   ) {
-    final filter = ParsedSearchQuery.parse(rawQuery);
-
     // Start with a base select statement on the sauceItems table
     final query = select(sauceItems); // select * from sauceItems
 
     //  Filter by title if specified
-    if (filter.titleQuery != null && filter.titleQuery!.isNotEmpty) {
-      query.where((s) => s.title.like('%${filter.titleQuery}%'));
+    if (filter.title.isNotEmpty) {
+      query.where((s) => s.title.like('%${filter.title}%'));
     }
 
     //  Filter by description if specified
-    if (filter.descQuery != null && filter.descQuery!.isNotEmpty) {
-      query.where((s) => s.description.like('%${filter.descQuery}%'));
+    if (filter.desc.isNotEmpty) {
+      query.where((s) => s.description.like('%${filter.desc}%'));
     }
 
     //  Include Tags: Sauce MUST have them all
@@ -249,8 +248,10 @@ class AppDatabase extends _$AppDatabase {
     return query;
   }
 
-  Stream<List<SauceWithTags>> watchFilteredSauceItemsWithTags(String rawQuery) {
-    final query = _filterSauceItems(rawQuery);
+  Stream<List<SauceWithTags>> watchFilteredSauceItemsWithTags(
+    SauceFilter filter,
+  ) {
+    final query = _filterSauceItems(filter);
     return query
         .join([
           leftOuterJoin(sauceTags, sauceTags.sauceId.equalsExp(sauceItems.id)),

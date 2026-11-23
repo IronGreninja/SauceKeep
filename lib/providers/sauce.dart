@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'search_query.dart';
+import 'sauce_filter.dart';
 import '../database/database.dart';
 
 final allSauceItemsProvider = StreamProvider((ref) {
@@ -9,13 +10,13 @@ final allSauceItemsProvider = StreamProvider((ref) {
 });
 
 final filteredSauceItemsProvider = StreamProvider.autoDispose((ref) {
-  final queryText = ref.watch(searchQueryProvider);
+  final filter = ref.watch(sauceFilterProvider);
   final database = ref.watch(AppDatabase.provider);
-  return database.watchFilteredSauceItems(queryText);
+  return database.watchFilteredSauceItems(filter);
 });
 
 final filteredSauceItemsWithTagsProvider = StreamProvider.autoDispose((ref) {
-  final queryText = ref.watch(searchQueryProvider);
+  final filter = ref.watch(sauceFilterProvider);
   final database = ref.watch(AppDatabase.provider);
-  return database.watchFilteredSauceItemsWithTags(queryText);
+  return database.watchFilteredSauceItemsWithTags(filter);
 });
