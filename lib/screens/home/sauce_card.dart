@@ -129,7 +129,7 @@ class SauceItemCard extends ConsumerWidget {
   }
 }
 
-class _TagChip extends StatelessWidget {
+class _TagChip extends ConsumerWidget {
   final String tag;
   final bool isCounter;
 
@@ -139,7 +139,7 @@ class _TagChip extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 

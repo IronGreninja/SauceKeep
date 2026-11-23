@@ -49,7 +49,7 @@ class HomePage extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Settings',
-            onPressed: () => context.go('/settings'),
+            onPressed: () => context.go('settings'),
           ),
         ],
       ),

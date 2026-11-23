@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
+@immutable
 class SauceFilter {
   final Set<String> includeTags;
   final Set<String> excludeTags;

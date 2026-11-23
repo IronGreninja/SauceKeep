@@ -15,7 +15,8 @@ dependencies:
   go_router: ^18.1.1
   path_provider: ^2.1.6
   shared_preferences: ^2.5.6
-  collection:
+  collection: ^1.19.1
+  flex_color_picker: ^4.0.0
 
 dev_dependencies:
   flutter_test:

@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'screens/home.dart';
-import 'screens/settings.dart';
+import 'screens/settings/settings.dart';
 import 'providers/shared_preferences.dart';
 import 'providers/theme.dart';
-import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,13 +40,21 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeProvider);
+    final theme = ref.watch(themeProvider);
+    final ColorScheme lightScheme = ColorScheme.fromSeed(
+      seedColor: theme.seedColor,
+      brightness: Brightness.light,
+    );
+    final ColorScheme darkScheme = ColorScheme.fromSeed(
+      seedColor: theme.seedColor,
+      brightness: Brightness.dark,
+    );
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'SauceKeep',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
+      theme: ThemeData(useMaterial3: true, colorScheme: lightScheme),
+      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkScheme),
+      themeMode: theme.themeMode,
       routerConfig: _router,
     );
   }
