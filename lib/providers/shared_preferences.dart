@@ -1,9 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError(
-    'sharedPreferencesProvider has not been initialized. '
-    'It must be overridden in main() with a SharedPreferences instance.',
-  );
+final sharedPrefsProvider = Provider<SharedPreferencesWithCache>((ref) {
+  throw UnimplementedError('sharedPrefsProvider must be overridden in main()');
 });
+
+abstract final class PrefsKeys {
+  static const themeMode = 'theme.mode';
+  static const searchQuerySyntax = 'search.syntax';
+
+  static const Set<String> allowList = {
+    themeMode,
+    searchQuerySyntax,
+  };
+}
+
+Future<SharedPreferencesWithCache> createSharedPrefsWithCache() {
+  return SharedPreferencesWithCache.create(
+    cacheOptions: const SharedPreferencesWithCacheOptions(
+      allowList: PrefsKeys.allowList,
+    ),
+  );
+}

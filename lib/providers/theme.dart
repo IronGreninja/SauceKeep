@@ -8,15 +8,13 @@ final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(
 );
 
 class ThemeNotifier extends Notifier<ThemeMode> {
-  static const String _themePrefKey = 'app_theme';
-
   @override
   ThemeMode build() {
-    final prefs = ref.watch(sharedPreferencesProvider);
+    final prefs = ref.watch(sharedPrefsProvider);
 
-    final savedTheme = prefs.getString(_themePrefKey);
+    final themeMode = prefs.getString(PrefsKeys.themeMode);
 
-    return switch (savedTheme) {
+    return switch (themeMode) {
       'light' => ThemeMode.light,
       'dark' => ThemeMode.dark,
       _ => ThemeMode.system,
@@ -27,7 +25,7 @@ class ThemeNotifier extends Notifier<ThemeMode> {
     // Update the app immediately.
     state = mode;
 
-    final prefs = ref.read(sharedPreferencesProvider);
+    final prefs = ref.read(sharedPrefsProvider);
 
     final value = switch (mode) {
       ThemeMode.light => 'light',
@@ -35,6 +33,6 @@ class ThemeNotifier extends Notifier<ThemeMode> {
       ThemeMode.system => 'system',
     };
 
-    await prefs.setString(_themePrefKey, value);
+    await prefs.setString(PrefsKeys.themeMode, value);
   }
 }

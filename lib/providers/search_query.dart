@@ -36,20 +36,18 @@ final querySyntaxTypeProvider =
     );
 
 class QuerySyntaxTypeNotifier extends Notifier<QuerySyntaxType> {
-  static const String _syntaxTypePrefKey = 'selected_query_syntax_type';
-
   @override
   QuerySyntaxType build() {
-    final prefs = ref.read(sharedPreferencesProvider);
-    final savedKey = prefs.getString(_syntaxTypePrefKey);
+    final prefs = ref.read(sharedPrefsProvider);
+    final savedKey = prefs.getString(PrefsKeys.searchQuerySyntax);
     return QuerySyntaxType.fromKey(savedKey);
   }
 
   Future<void> setQuerySyntax(QuerySyntaxType type) async {
     if (state == type) return;
     state = type;
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(_syntaxTypePrefKey, type.key);
+    final prefs = ref.read(sharedPrefsProvider);
+    await prefs.setString(PrefsKeys.searchQuerySyntax, type.key);
   }
 }
 
