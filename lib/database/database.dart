@@ -261,12 +261,16 @@ class AppDatabase extends _$AppDatabase {
         .map((rows) {
           final Map<int, SauceWithTags> result = {};
           for (final row in rows) {
+            // always add the sauce first, its columns will never be null
             final sauce = row.readTable(sauceItems);
-            final tag = row.readTable(tags);
             result.putIfAbsent(
               sauce.id,
               () => SauceWithTags(sauce: sauce, tags: []),
             );
+            // sauce may have no tags, so the columns of tags table will be null
+            // (since it is right of a left outer join)
+            final tag = row.readTableOrNull(tags);
+            if (tag == null) continue;
             result[sauce.id]!.tags.add(tag.name);
           }
           return result.values.toList();
