@@ -4,6 +4,7 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../providers/theme.dart';
+import '../../theme/app_theme.dart';
 
 class AppearanceSettings extends ConsumerWidget {
   const AppearanceSettings({super.key});
@@ -25,7 +26,7 @@ class AppearanceSettings extends ConsumerWidget {
         child: Column(
           children: [
             ListTile(
-              title: const Text('Theme mode'),
+              title: const Text('Theme Mode'),
               trailing: SegmentedButton<ThemeMode>(
                 segments: [
                   .new(
@@ -65,6 +66,9 @@ class AppearanceSettings extends ConsumerWidget {
               const Divider(height: 1),
               ListTile(
                 title: const Text('Color'),
+                subtitle: Text(
+                  '${ColorTools.nameThatColor(seedColor)} (0x${ColorTools.colorCode(seedColor)})',
+                ),
                 trailing: ColorIndicator(
                   // todo
                   borderRadius: 20,
@@ -75,11 +79,39 @@ class AppearanceSettings extends ConsumerWidget {
                     final Color newColor = await showColorPickerDialog(
                       context,
                       seedColor, // starting color.
-                      title: Text(
-                        'ColorPicker',
-                        style: Theme.of(context).textTheme.titleLarge,
+                      title: Text('Select Color'),
+                      pickersEnabled: const {
+                        .custom: true,
+                        .wheel: true,
+                        .primary: false,
+                        .accent: false,
+                      },
+                      pickerTypeLabels: const {
+                        .custom: 'Standard',
+                        .wheel: 'Custom',
+                      },
+                      constraints: .new(
+                        minWidth: 300,
+                        maxWidth: 300,
+                        minHeight: 380,
+                        maxHeight: 380,
                       ),
+                      width: 52,
+                      height: 52,
+                      borderRadius: 26,
+                      spacing: 20,
+                      runSpacing: 20,
+                      wheelSquarePadding: 10,
+                      wheelHasBorder: true,
+                      // showMaterialName: true,
+                      showColorName: true,
+                      showColorCode: true,
+                      colorCodeHasColor: true,
+                      enableShadesSelection: false,
+                      customColorSwatchesAndNames: standardSwatchMap,
+                      barrierDismissible: false,
                     );
+
                     ref.read(themeProvider.notifier).setSeedColor(newColor);
                   },
                 ),

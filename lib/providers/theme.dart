@@ -23,7 +23,9 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
 
     return ThemeSettings(
       themeMode: themeMode,
-      seedColor: seedValue != null ? Color(seedValue) : appSwatches.first.color,
+      seedColor: seedValue != null
+          ? Color(seedValue)
+          : standardSeedColors.first.color,
       useDynamicColor: useDynamic ?? false,
     );
   }
@@ -59,7 +61,7 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
   Future<void> resetToDefaults() async {
     state = ThemeSettings(
       themeMode: ThemeMode.system,
-      seedColor: appSwatches.first.color,
+      seedColor: standardSeedColors.first.color,
       useDynamicColor: false,
     );
     final prefs = ref.read(sharedPrefsProvider);
@@ -67,7 +69,7 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
       prefs.setString(PrefsKeys.themeMode, 'system'),
       prefs.setInt(
         PrefsKeys.themeSeedColor,
-        appSwatches.first.color.toARGB32(),
+        standardSeedColors.first.color.toARGB32(),
       ),
       prefs.setBool(PrefsKeys.themeUseDynamic, false),
     ]);
