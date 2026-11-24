@@ -53,38 +53,38 @@ class AppearanceSettings extends ConsumerWidget {
             ),
             const Divider(height: 1),
             SwitchListTile(
-              // secondary: const Icon(Icons.auto_awesome),
-              // todo: actually use material you dynamic theme
-              title: const Text('Use Material You'),
+              title: const Text('Dynamic Color'),
               subtitle: const Text(
-                'Adapt colors from system wallpaper/accent when supported',
+                'Use Color from system wallpaper/accent if supported. Disable to choose one instead.',
               ),
               value: useDynamicColor,
               onChanged: (value) =>
                   ref.read(themeProvider.notifier).setUseDynamicColor(value),
             ),
-            const Divider(height: 1),
-            ListTile(
-              title: const Text('Color'),
-              trailing: ColorIndicator(
-                // todo
-                borderRadius: 20,
-                color: seedColor,
-                onSelectFocus: false,
-                onSelect: () async {
-                  // Wait for the dialog to return color selection result.
-                  final Color newColor = await showColorPickerDialog(
-                    context,
-                    seedColor, // starting color.
-                    title: Text(
-                      'ColorPicker',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  );
-                  ref.read(themeProvider.notifier).setSeedColor(newColor);
-                },
+            if (useDynamicColor == false) ...[
+              const Divider(height: 1),
+              ListTile(
+                title: const Text('Color'),
+                trailing: ColorIndicator(
+                  // todo
+                  borderRadius: 20,
+                  color: seedColor,
+                  onSelectFocus: false,
+                  onSelect: () async {
+                    // Wait for the dialog to return color selection result.
+                    final Color newColor = await showColorPickerDialog(
+                      context,
+                      seedColor, // starting color.
+                      title: Text(
+                        'ColorPicker',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    );
+                    ref.read(themeProvider.notifier).setSeedColor(newColor);
+                  },
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

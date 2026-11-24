@@ -2,10 +2,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'home/add_dialog.dart';
-import 'home/sauce_card.dart';
-import '../providers/sauce.dart';
-import '../providers/search_query.dart';
+import 'add_dialog.dart';
+import 'sauce_card.dart';
+import '../../providers/sauce.dart';
+import '../../providers/search_query.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});

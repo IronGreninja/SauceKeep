@@ -1,8 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
-import 'screens/home.dart';
+import 'screens/home/home.dart';
 import 'screens/settings/settings.dart';
 import 'providers/shared_preferences.dart';
 import 'providers/theme.dart';
@@ -41,21 +42,17 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(themeProvider);
-    final ColorScheme lightScheme = ColorScheme.fromSeed(
-      seedColor: theme.seedColor,
-      brightness: Brightness.light,
-    );
-    final ColorScheme darkScheme = ColorScheme.fromSeed(
-      seedColor: theme.seedColor,
-      brightness: Brightness.dark,
-    );
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'SauceKeep',
-      theme: ThemeData(useMaterial3: true, colorScheme: lightScheme),
-      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkScheme),
-      themeMode: theme.themeMode,
-      routerConfig: _router,
+    return DynamicColorBuilder(
+      builder: (lightDynamic, darkDynamic) {
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'SauceKeep',
+          theme: theme.getLightTheme(lightDynamic),
+          darkTheme: theme.getDarkTheme(darkDynamic),
+          themeMode: theme.themeMode,
+          routerConfig: _router,
+        );
+      },
     );
   }
 }

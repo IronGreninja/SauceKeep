@@ -19,6 +19,7 @@ dependencies:
   flex_color_picker: ^4.0.0
   material_ui: ^1.11.1
   material_symbols_icons: ^4.2960.0
+  dynamic_color: ^2.1.0
 
 dev_dependencies:
   flutter_test:
