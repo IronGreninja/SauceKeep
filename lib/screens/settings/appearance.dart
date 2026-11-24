@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../providers/theme.dart';
 
@@ -29,7 +30,7 @@ class AppearanceSettings extends ConsumerWidget {
                 segments: [
                   .new(
                     value: ThemeMode.system,
-                    icon: Icon(Icons.brightness_auto),
+                    icon: Icon(Symbols.light_mode_auto),
                     tooltip: 'Follow System',
                   ),
                   .new(
@@ -53,6 +54,7 @@ class AppearanceSettings extends ConsumerWidget {
             const Divider(height: 1),
             SwitchListTile(
               // secondary: const Icon(Icons.auto_awesome),
+              // todo: actually use material you dynamic theme
               title: const Text('Use Material You'),
               subtitle: const Text(
                 'Adapt colors from system wallpaper/accent when supported',
@@ -71,15 +73,15 @@ class AppearanceSettings extends ConsumerWidget {
                 onSelectFocus: false,
                 onSelect: () async {
                   // Wait for the dialog to return color selection result.
-                  // final Color newColor = await showColorPickerDialog( // fixme: error here
-                  //   // The dialog needs a context, we pass it in.
-                  //   context,
-                  //   // starting color.
-                  //   seedColor,
-                  //   title: Text(
-                  //     'ColorPicker',
-                  //     style: Theme.of(context).textTheme.titleLarge,
-                  //   ),
+                  final Color newColor = await showColorPickerDialog(
+                    context,
+                    seedColor, // starting color.
+                    title: Text(
+                      'ColorPicker',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  );
+                  ref.read(themeProvider.notifier).setSeedColor(newColor);
                 },
               ),
             ),
