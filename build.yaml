@@ -1,0 +1,14 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # To use DateTime as ISO 8601 strings
+          store_date_time_values_as_text: true
+          schema_dir: lib/database/drift_schemas/
+          databases:
+            # Required: A name for the database and its path
+            main_database: lib/database/database.dart
+          sql:
+            options:
+              modules: [fts5]

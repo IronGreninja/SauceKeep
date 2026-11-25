@@ -2,6 +2,33 @@
 
 import 'tables.dart';
 
+CREATE VIRTUAL TABLE sauce_fts USING fts5(
+  title,
+  description,
+  content='sauce_items',
+  content_rowid='id',
+  tokenize='unicode61 remove_diacritics 2'
+);
+
+-- Triggers to keep fts index in sync
+CREATE TRIGGER sauce_ai AFTER INSERT ON sauce_items BEGIN
+  INSERT INTO sauce_fts(rowid, title, description)
+  VALUES (new.id, new.title, new.description);
+END;
+
+CREATE TRIGGER sauce_ad AFTER DELETE ON sauce_items BEGIN
+  INSERT INTO sauce_fts(sauce_fts, rowid, title, description)
+  VALUES ('delete', old.id, old.title, old.description);
+END;
+
+CREATE TRIGGER sauce_au AFTER UPDATE ON sauce_items BEGIN
+  INSERT INTO sauce_fts(sauce_fts, rowid, title, description)
+  VALUES ('delete', old.id, old.title, old.description);
+
+  INSERT INTO sauce_fts(rowid, title, description)
+  VALUES (new.id, new.title, new.description);
+END;
+
 -- Example
 _allSauceItemsWithTags:
 SELECT

@@ -34,6 +34,11 @@ readme.local.md
 /build/
 /coverage/
 
+# generated files by build_runner. can be recreated
+/test/drift
+*.steps.dart
+*.g.dart
+
 # Symbolication related
 app.*.symbols
 
