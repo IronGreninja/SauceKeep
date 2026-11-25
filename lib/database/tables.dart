@@ -23,7 +23,8 @@ class Tags extends Table with AutoIncrementingPrimaryKey {
 @TableIndex(name: 'idx_sauce_tags_sauce_id', columns: {#sauceId})
 @TableIndex(name: 'idx_sauce_tags_tag_id', columns: {#tagId})
 class SauceTags extends Table {
-  IntColumn get sauceId => integer().references(SauceItems, #id)();
+  IntColumn get sauceId =>
+      integer().references(SauceItems, #id, onDelete: .cascade)();
   IntColumn get tagId => integer().references(Tags, #id)();
 
   @override

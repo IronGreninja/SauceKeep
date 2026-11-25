@@ -1,3 +1,14 @@
 -- vim: set ft=sql
 
 import 'tables.dart';
+
+-- Example
+_allSauceItemsWithTags:
+SELECT
+  si.*,
+  COALESCE(GROUP_CONCAT(t.name, ','), '') AS tags_str
+FROM
+  sauce_items si
+  LEFT OUTER JOIN sauce_tags st ON si.id = st.sauce_id
+  LEFT OUTER JOIN tags t ON st.tag_id = t.id
+GROUP BY si.id;

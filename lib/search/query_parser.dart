@@ -33,6 +33,7 @@ class SimpleQueryParser implements QueryParser {
       excludeTags: exclude,
       title: _parseTitle(query),
       desc: _parseDesc(query),
+      created: _parseCreated(query),
     );
   }
 
@@ -65,7 +66,6 @@ class SimpleQueryParser implements QueryParser {
     final tagRegex = RegExp(r'(^|\s)tag:(?:"([^"]+)"|([^\s]+))');
     // Matches -tag:value or -tag:"multi word"
     final excludeTagRegex = RegExp(r'(^|\s)-tag:(?:"([^"]+)"|([^\s]+))');
-    // Matches title:value or title:"multi word"
 
     final Set<String> includeTags = {};
     final Set<String> excludeTags = {};
@@ -80,6 +80,36 @@ class SimpleQueryParser implements QueryParser {
     }
 
     return (includeTags, excludeTags);
+  }
+
+  DateRange _parseCreated(String query) {
+    // Matches created:>2026-01-20 or created:<2026-04-15 or created:^2020-01-02,2021-01-02
+    final createdRegex = RegExp(
+      r'(?:^|\s)created:(?:(([<>])(\d{4}-\d{2}-\d{2}))|(?:\^(\d{4}-\d{2}-\d{2}),(\d{4}-\d{2}-\d{2})))',
+    );
+
+    var from = DateTime.fromMillisecondsSinceEpoch(0);
+    var to = DateTime.now();
+
+    final cMatch = createdRegex.firstMatch(query);
+    if (cMatch != null) {
+      if (cMatch.group(1) != null) {
+        final date = DateTime.parse(cMatch.group(3)!);
+        switch (cMatch.group(2)!) {
+          case '<':
+            to = date;
+          case '>':
+            from = date;
+        }
+      } else {
+        from = DateTime.parse(cMatch.group(4)!);
+        to = DateTime.parse(cMatch.group(5)!);
+
+        if (from.isAfter(to)) (from, to) = (to, from);
+      }
+    }
+
+    return .new(from: from, to: to);
   }
 }
 

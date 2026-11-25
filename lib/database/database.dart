@@ -54,6 +54,7 @@ class AppDatabase extends _$AppDatabase {
     required String title,
     String? desc,
     required List<String> tagNames,
+    DateTime? created,
   }) {
     return transaction(() async {
       // Insert Sauce and get the id
@@ -72,6 +73,7 @@ class AppDatabase extends _$AppDatabase {
             id: Value(sauceId),
             title: title,
             description: Value(desc),
+            createdAt: created != null ? Value(created) : const Value.absent(),
           ),
         );
       }
@@ -172,13 +174,12 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteSauceWithCleanup(int sauceId) {
     return transaction(() async {
-      // Delete associated sauceTags entries
-      await (delete(sauceTags)..where((st) => st.sauceId.equals(sauceId))).go();
-
       // Delete the sauce itself
       await (delete(sauceItems)..where((s) => s.id.equals(sauceId))).go();
 
-      // Clean up any tags left without associated sauce
+      // Associated sauceTags entries are deleted due to cascade
+
+      // Clean up any tags left without associated sauce // todo: create a trigger for this?
       final usedTagIds = selectOnly(sauceTags)..addColumns([sauceTags.tagId]);
       await (delete(tags)..where((t) => t.id.isNotInQuery(usedTagIds))).go();
     });
@@ -194,6 +195,10 @@ class AppDatabase extends _$AppDatabase {
   ) {
     // Start with a base select statement on the sauceItems table
     final query = select(sauceItems); // select * from sauceItems
+
+    // Filter by created
+    final created = filter.created;
+    query.where((s) => s.createdAt.isBetweenValues(created.from, created.to));
 
     //  Filter by title if specified
     if (filter.title.isNotEmpty) {

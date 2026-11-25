@@ -125,6 +125,7 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
                   title: _currentTitle,
                   desc: _currentDesc.isEmpty ? null : _currentDesc,
                   tagNames: _currentTagNames,
+                  created: widget.sauce.sauce.createdAt,
                 );
               },
             ),

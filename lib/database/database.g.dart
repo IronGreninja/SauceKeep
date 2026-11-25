@@ -507,7 +507,7 @@ class $SauceTagsTable extends SauceTags
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES sauce_items (id)',
+      'REFERENCES sauce_items (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _tagIdMeta = const VerificationMeta('tagId');
@@ -724,6 +724,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_sauce_tags_tag_id',
     'CREATE INDEX idx_sauce_tags_tag_id ON sauce_tags (tag_id)',
   );
+  Selectable<AllSauceItemsWithTagsResult> _allSauceItemsWithTags() {
+    return customSelect(
+      'SELECT si.*, COALESCE(GROUP_CONCAT(t.name, \',\'), \'\') AS tags_str FROM sauce_items AS si LEFT OUTER JOIN sauce_tags AS st ON si.id = st.sauce_id LEFT OUTER JOIN tags AS t ON st.tag_id = t.id GROUP BY si.id',
+      variables: [],
+      readsFrom: {this.tags, this.sauceItems, this.sauceTags},
+    ).map(
+      (QueryRow row) => AllSauceItemsWithTagsResult(
+        id: row.read<int>('id'),
+        title: row.read<String>('title'),
+        description: row.readNullable<String>('description'),
+        createdAt: row.read<DateTime>('created_at'),
+        tagsStr: row.read<String>('tags_str'),
+      ),
+    );
+  }
+
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -736,6 +752,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxSauceTagsSauceId,
     idxSauceTagsTagId,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'sauce_items',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('sauce_tags', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$SauceItemsTableCreateCompanionBuilder = SauceItemsCompanion Function({
@@ -1588,4 +1614,19 @@ class $AppDatabaseManager {
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
   $$SauceTagsTableTableManager get sauceTags =>
       $$SauceTagsTableTableManager(_db, _db.sauceTags);
+}
+
+class AllSauceItemsWithTagsResult {
+  final int id;
+  final String title;
+  final String? description;
+  final DateTime createdAt;
+  final String tagsStr;
+  AllSauceItemsWithTagsResult({
+    required this.id,
+    required this.title,
+    this.description,
+    required this.createdAt,
+    required this.tagsStr,
+  });
 }
