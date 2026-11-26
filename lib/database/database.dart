@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:drift/extensions/fts5.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../search/query_parser.dart';
 import '../search/filter.dart';
 
 import 'tables.dart';
@@ -49,21 +49,52 @@ class AppDatabase extends _$AppDatabase {
     return query.watch();
   }
 
+  Future<int> tryCreateTag(String name) {
+    name = name.trim();
+
+    return transaction(() async {
+      final int tagId;
+
+      // Check if the tag already exists
+      final tag = await (select(
+        tags,
+      )..where((t) => t.name.equals(name))).getSingleOrNull();
+
+      if (tag != null) {
+        // Tag exists, use its id
+        tagId = tag.id;
+      } else {
+        // Tag doesn't exist, insert it and get the new id
+        tagId = await into(tags).insert(
+          TagsCompanion.insert(name: name),
+        );
+      }
+
+      return tagId;
+    });
+  }
+
   Future<int> createSauceWithTags({
     int? id,
     required String title,
     String? desc,
-    required List<String> tagNames,
+    required List<String> tagNames, // todo: make this a set
     DateTime? created,
   }) {
     return transaction(() async {
       // Insert Sauce and get the id
+      final Value<String> descValue = desc != null
+          ? Value(desc)
+          : const Value.absent();
+      final Value<DateTime> createdValue = created != null
+          ? Value(created)
+          : const Value.absent();
       final int sauceId;
       if (id == null) {
         sauceId = await into(sauceItems).insert(
           SauceItemsCompanion.insert(
             title: title,
-            description: Value(desc),
+            description: descValue,
           ),
         );
       } else {
@@ -72,8 +103,8 @@ class AppDatabase extends _$AppDatabase {
           SauceItemsCompanion.insert(
             id: Value(sauceId),
             title: title,
-            description: Value(desc),
-            createdAt: created != null ? Value(created) : const Value.absent(),
+            description: descValue,
+            createdAt: createdValue,
           ),
         );
       }
@@ -83,26 +114,12 @@ class AppDatabase extends _$AppDatabase {
         final trimmedName = tagName.trim();
         if (trimmedName.isEmpty) continue;
 
-        // Check if the tag already exists
-        var tag = await (select(
-          tags,
-        )..where((t) => t.name.equals(trimmedName))).getSingleOrNull();
-
-        int tagId;
-        if (tag != null) {
-          // Tag exists, use its id
-          tagId = tag.id;
-        } else {
-          // Tag doesn't exist, insert it and get the new id
-          tagId = await into(tags).insert(
-            TagsCompanion.insert(name: trimmedName),
-          );
-        }
+        // insert new or get existing tag id
+        final tagId = await tryCreateTag(trimmedName);
 
         // Link the sauce and tag
         await into(sauceTags).insert(
           SauceTagsCompanion.insert(tagId: tagId, sauceId: sauceId),
-          mode: InsertMode.insertOrIgnore, // no error when tag already exists
         );
       }
 
@@ -132,11 +149,11 @@ class AppDatabase extends _$AppDatabase {
     required List<String> tagNames,
   }) {
     return transaction(() async {
-      // Update the sauce record
+      // Update the sauce item
       await (update(sauceItems)..where((s) => s.id.equals(sauceId))).write(
         SauceItemsCompanion(
           title: Value(title),
-          description: Value(desc),
+          description: desc != null ? Value(desc) : const Value.absent(),
         ),
       );
 
@@ -148,25 +165,13 @@ class AppDatabase extends _$AppDatabase {
         final trimmedName = tagName.trim();
         if (trimmedName.isEmpty) continue;
 
-        var tag = await (select(
-          tags,
-        )..where((t) => t.name.equals(trimmedName))).getSingleOrNull();
-
-        int tagId;
-        if (tag != null) {
-          tagId = tag.id;
-        } else {
-          tagId = await into(tags).insert(
-            TagsCompanion.insert(name: trimmedName),
-          );
-        }
+        final tagId = await tryCreateTag(trimmedName);
 
         await into(sauceTags).insert(
           SauceTagsCompanion.insert(
             sauceId: sauceId,
             tagId: tagId,
           ),
-          mode: InsertMode.insertOrIgnore,
         );
       }
     });
@@ -202,12 +207,20 @@ class AppDatabase extends _$AppDatabase {
 
     //  Filter by title if specified
     if (filter.title.isNotEmpty) {
-      query.where((s) => s.title.like('%${filter.title}%'));
+      final ftsTitleQuery = 'title : ${filter.title}';
+      final ftsSelectQuery = (selectOnly(sauceFts)
+        ..addColumns([sauceFts.rowId])
+        ..where(sauceFts.match(ftsTitleQuery)));
+      query.where((s) => s.id.isInQuery(ftsSelectQuery));
     }
 
     //  Filter by description if specified
     if (filter.desc.isNotEmpty) {
-      query.where((s) => s.description.like('%${filter.desc}%'));
+      final ftsDescQuery = 'description : ${filter.desc}';
+      final ftsSelectQuery = (selectOnly(sauceFts)
+        ..addColumns([sauceFts.rowId])
+        ..where(sauceFts.match(ftsDescQuery)));
+      query.where((s) => s.id.isInQuery(ftsSelectQuery));
     }
 
     //  Include Tags: Sauce MUST have them all
@@ -250,6 +263,12 @@ class AppDatabase extends _$AppDatabase {
         return notExistsQuery(matchingTag);
       });
     }
+
+    // Order by created_at
+    query.orderBy([
+      (si) => .new(expression: si.createdAt, mode: .desc),
+    ]); // latest first // todo: allow user to choose
+
     return query;
   }
 

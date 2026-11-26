@@ -55,7 +55,7 @@ class _SauceAddDialogState extends ConsumerState<SauceAddDialog> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sauce updated successfully')),
+        const SnackBar(content: Text('Sauce added successfully')),
       );
     }
   }

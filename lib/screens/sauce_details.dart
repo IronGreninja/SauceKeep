@@ -113,9 +113,9 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
           SnackBar(
             content: Text('Deleted "$_currentTitle"'),
             duration: const Duration(
-              seconds: 4,
+              seconds: 3,
             ), // needs persist: false to work
-            // persist: false,
+            persist: false,
             action: SnackBarAction(
               label: 'UNDO',
               onPressed: () async {

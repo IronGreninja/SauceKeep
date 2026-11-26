@@ -64,6 +64,14 @@ class HomePage extends ConsumerWidget {
       ),
       body: filteredSauceItemsWithTags.when(
         data: (sauceItems) {
+          // if (sauceItems.isEmpty) {
+          //   return Center(
+          //     child: Text(
+          //       'sauce?',
+          //       style: Theme.of(context).textTheme.titleLarge,
+          //     ),
+          //   );
+          // }
           return ListView.builder(
             itemCount: sauceItems.length,
             itemBuilder: (context, index) =>
