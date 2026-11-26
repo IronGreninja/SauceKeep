@@ -28,6 +28,8 @@ class SauceItemCard extends ConsumerWidget {
     final visibleTags = tags.take(2).toList();
     final remainingTags = tags.length - visibleTags.length;
 
+    final localize = MaterialLocalizations.of(context);
+
     return Card(
       margin: const EdgeInsets.symmetric(
         horizontal: 16,
@@ -77,7 +79,8 @@ class SauceItemCard extends ConsumerWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Created ${MaterialLocalizations.of(context).formatMediumDate(sauce.sauce.createdAt)}',
+                    '${localize.formatCompactDate(sauce.sauce.createdAt)} • '
+                    '${localize.formatTimeOfDay(.fromDateTime(sauce.sauce.createdAt.toLocal()))}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),

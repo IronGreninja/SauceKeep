@@ -1,12 +1,15 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
+enum DateRangeType { before, after, between, none }
+
 @immutable
 class DateRange {
-  final DateTime from;
-  final DateTime to;
+  final DateRangeType type;
+  final DateTime? from;
+  final DateTime? to;
 
-  const DateRange({required this.from, required this.to});
+  const DateRange(this.type, {this.from, this.to});
 }
 
 @immutable
@@ -22,7 +25,7 @@ class SauceFilter {
     this.excludeTags = const {},
     this.title = '',
     this.desc = '',
-    required this.created,
+    this.created = const .new(.none),
   });
 
   SauceFilter copyWith({

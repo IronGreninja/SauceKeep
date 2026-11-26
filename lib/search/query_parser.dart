@@ -88,8 +88,7 @@ class SimpleQueryParser implements QueryParser {
       r'(?:^|\s)created:(?:(([<>])(\d{4}-\d{2}-\d{2}))|(?:\^(\d{4}-\d{2}-\d{2}),(\d{4}-\d{2}-\d{2})))',
     );
 
-    var from = DateTime.fromMillisecondsSinceEpoch(0);
-    var to = DateTime.now();
+    DateRange result = .new(.none);
 
     final cMatch = createdRegex.firstMatch(query);
     if (cMatch != null) {
@@ -97,19 +96,20 @@ class SimpleQueryParser implements QueryParser {
         final date = DateTime.parse(cMatch.group(3)!);
         switch (cMatch.group(2)!) {
           case '<':
-            to = date;
+            result = .new(.before, to: date);
           case '>':
-            from = date;
+            result = .new(.after, from: date);
         }
       } else {
-        from = DateTime.parse(cMatch.group(4)!);
-        to = DateTime.parse(cMatch.group(5)!);
+        var from = DateTime.parse(cMatch.group(4)!);
+        var to = DateTime.parse(cMatch.group(5)!);
 
         if (from.isAfter(to)) (from, to) = (to, from);
+        result = .new(.between, from: from, to: to);
       }
     }
 
-    return .new(from: from, to: to);
+    return result;
   }
 }
 

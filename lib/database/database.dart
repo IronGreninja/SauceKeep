@@ -202,8 +202,21 @@ class AppDatabase extends _$AppDatabase {
     final query = select(sauceItems); // select * from sauceItems
 
     // Filter by created
-    final created = filter.created;
-    query.where((s) => s.createdAt.isBetweenValues(created.from, created.to));
+    final createdFilter = filter.created;
+    switch (createdFilter.type) {
+      case .before:
+        query.where((s) => s.createdAt.isSmallerThanValue(createdFilter.to!));
+      case .after:
+        query.where((s) => s.createdAt.isBiggerThanValue(createdFilter.from!));
+      case .between:
+        query.where(
+          (s) => s.createdAt.isBetweenValues(
+            createdFilter.from!,
+            createdFilter.to!,
+          ),
+        );
+      case .none:
+    }
 
     //  Filter by title if specified
     if (filter.title.isNotEmpty) {
