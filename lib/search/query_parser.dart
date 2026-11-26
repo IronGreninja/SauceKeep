@@ -34,6 +34,7 @@ class SimpleQueryParser implements QueryParser {
       title: _parseTitle(query),
       desc: _parseDesc(query),
       created: _parseCreated(query),
+      order: _parseOrder(query),
     );
   }
 
@@ -110,6 +111,17 @@ class SimpleQueryParser implements QueryParser {
     }
 
     return result;
+  }
+
+  OrderType _parseOrder(String query) {
+    final orderRegex = RegExp(r'(?:^|\s)order:(?:(latest)|(oldest))');
+
+    final oMatch = orderRegex.firstMatch(query);
+    if (oMatch != null) {
+      if (oMatch.group(1) != null) return .latest;
+      if (oMatch.group(2) != null) return .oldest;
+    }
+    return .latest;
   }
 }
 

@@ -12,6 +12,8 @@ class DateRange {
   const DateRange(this.type, {this.from, this.to});
 }
 
+enum OrderType { latest, oldest }
+
 @immutable
 class SauceFilter {
   final Set<String> includeTags;
@@ -19,6 +21,7 @@ class SauceFilter {
   final String title;
   final String desc;
   final DateRange created;
+  final OrderType order;
 
   const SauceFilter({
     this.includeTags = const {},
@@ -26,6 +29,7 @@ class SauceFilter {
     this.title = '',
     this.desc = '',
     this.created = const .new(.none),
+    this.order = .latest,
   });
 
   SauceFilter copyWith({
@@ -34,6 +38,7 @@ class SauceFilter {
     String? title,
     String? desc,
     DateRange? created,
+    OrderType? order,
   }) {
     return SauceFilter(
       includeTags: includeTags ?? this.includeTags,
@@ -41,6 +46,7 @@ class SauceFilter {
       title: title ?? this.title,
       desc: desc ?? this.desc,
       created: created ?? this.created,
+      order: order ?? this.order,
     );
   }
 
@@ -53,7 +59,8 @@ class SauceFilter {
         other.desc == desc &&
         setEq.equals(other.includeTags, includeTags) &&
         setEq.equals(other.excludeTags, excludeTags) &&
-        other.created == created;
+        other.created == created &&
+        other.order == order;
   }
 
   @override
@@ -65,6 +72,7 @@ class SauceFilter {
       title,
       desc,
       created,
+      order,
     );
   }
 }

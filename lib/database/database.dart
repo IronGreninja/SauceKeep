@@ -279,8 +279,14 @@ class AppDatabase extends _$AppDatabase {
 
     // Order by created_at
     query.orderBy([
-      (si) => .new(expression: si.createdAt, mode: .desc),
-    ]); // latest first // todo: allow user to choose
+      (si) => .new(
+        expression: si.createdAt,
+        mode: switch (filter.order) {
+          .latest => .desc,
+          .oldest => .asc,
+        },
+      ),
+    ]);
 
     return query;
   }
