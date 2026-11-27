@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../database/database.dart';
+import '../../providers/database.dart';
 import '../../database/tables.dart';
 
 class SauceAddDialog extends ConsumerStatefulWidget {
@@ -44,7 +44,7 @@ class _SauceAddDialogState extends ConsumerState<SauceAddDialog> {
       return;
     }
 
-    final database = ref.read(AppDatabase.provider);
+    final database = ref.read(databaseProvider);
     await database.createSauceWithTags(
       title: _titleController.text,
       tagNames: Tags.namesListFromCommaSepStrOfNames(_tagsController.text),

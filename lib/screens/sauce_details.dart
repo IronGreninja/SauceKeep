@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../providers/database.dart';
 import '../../database/database.dart';
 import '../../database/tables.dart';
 
@@ -53,7 +54,7 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
     final desc = _descController.text.trim();
     final tagNames = Tags.namesListFromCommaSepStrOfNames(_tagsController.text);
 
-    final database = ref.read(AppDatabase.provider);
+    final database = ref.read(databaseProvider);
     await database.updateSauceWithTags(
       sauceId: widget.sauce.sauce.id,
       title: title,
@@ -103,7 +104,7 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
     );
 
     if (confirm == true) {
-      final database = ref.read(AppDatabase.provider);
+      final database = ref.read(databaseProvider);
       await database.deleteSauceWithCleanup(widget.sauce.sauce.id);
 
       if (mounted) {

@@ -73,7 +73,7 @@ class HomePage extends ConsumerWidget {
         },
         error: (e, s) {
           debugPrintStack(label: e.toString(), stackTrace: s);
-          return const Text('An error has occured');
+          return Text('An error has occured: ${e.toString()}');
         },
         loading: () => const Align(
           alignment: Alignment.center,

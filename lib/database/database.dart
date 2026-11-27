@@ -1,14 +1,22 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:drift/extensions/fts5.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 
 import '../search/filter.dart';
 
 import 'tables.dart';
 
 part 'database.g.dart';
+
+Future<File> get databaseFile async {
+  final appDir = await getApplicationDocumentsDirectory();
+  final dbPath = p.join(appDir.path, 'saucekeep.sqlite');
+  return File(dbPath);
+}
 
 @DriftDatabase(tables: [SauceItems, Tags, SauceTags], include: {'sql.drift'})
 class AppDatabase extends _$AppDatabase {
@@ -21,9 +29,9 @@ class AppDatabase extends _$AppDatabase {
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
-      name: 'sauce_db',
+      name: 'saucekeep',
       native: const DriftNativeOptions(
-        databaseDirectory: getApplicationSupportDirectory,
+        databaseDirectory: getApplicationDocumentsDirectory,
       ),
     );
   }
@@ -37,12 +45,28 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  static final provider = Provider((ref) {
-    final database = AppDatabase();
-    ref.onDispose(database.close);
+  Future<Uint8List> dbBackupFileBytes() async {
+    // Create temporary backup.
+    final tempDir = await getTemporaryDirectory();
 
-    return database;
-  });
+    final tempPath = p.join(
+      tempDir.path,
+      'tmp_db_backup.sqlite',
+    );
+
+    final tempFile = File(tempPath);
+
+    await customStatement(
+      'VACUUM INTO ?',
+      [tempPath],
+    );
+
+    final bytes = await tempFile.readAsBytes();
+
+    await tempFile.delete();
+
+    return bytes;
+  }
 
   Stream<List<Sauce>> allSauce() {
     final query = select(sauceItems);
