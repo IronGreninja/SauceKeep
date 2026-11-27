@@ -64,14 +64,7 @@ class HomePage extends ConsumerWidget {
       ),
       body: filteredSauceItemsWithTags.when(
         data: (sauceItems) {
-          // if (sauceItems.isEmpty) {
-          //   return Center(
-          //     child: Text(
-          //       'sauce?',
-          //       style: Theme.of(context).textTheme.titleLarge,
-          //     ),
-          //   );
-          // }
+          // todo: show message for different empty states: no sauce in db, sauce in db but query returned nothing
           return ListView.builder(
             itemCount: sauceItems.length,
             itemBuilder: (context, index) =>

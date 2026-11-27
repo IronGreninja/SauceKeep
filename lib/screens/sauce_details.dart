@@ -31,7 +31,7 @@ class _SauceDetailsPageState extends ConsumerState<SauceDetailsPage> {
     super.initState();
     _currentTitle = widget.sauce.sauce.title;
     _titleController = .new(text: _currentTitle);
-    _currentDesc = widget.sauce.sauce.description ?? '';
+    _currentDesc = widget.sauce.sauce.description;
     _descController = .new(text: _currentDesc);
     _currentTagNames = widget.sauce.tags;
     _currentTagsStr = _currentTagNames.join(', ');

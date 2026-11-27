@@ -18,8 +18,7 @@ class SauceItemCard extends ConsumerWidget {
     final colors = theme.colorScheme;
 
     // Handle optional description.
-    final description = sauce.sauce.description?.trim();
-    final hasDescription = description != null && description.isNotEmpty;
+    final description = sauce.sauce.description.trim();
 
     // Remove empty tags.
     final tags = sauce.tags.where((tag) => tag.trim().isNotEmpty).toList();
@@ -89,7 +88,7 @@ class SauceItemCard extends ConsumerWidget {
               ),
 
               // Optional description
-              if (hasDescription) ...[
+              if (description.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
                   description,

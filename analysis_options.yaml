@@ -9,6 +9,11 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    # exclude generated code
+    - '**.g.dart'
+
+plugins:
+  riverpod_lint: 3.2.0
 
 formatter:
   # page_width: 123
